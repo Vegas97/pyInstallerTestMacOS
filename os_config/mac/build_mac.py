@@ -12,6 +12,8 @@ def resource_path(relative_path):
     return os.path.abspath(os.path.join(bundle_dir, relative_path))
 
 
+print('Building MacOS by Vegas.\n')
+
 appName = os.getenv('APP_NAME')  # money-manager-python
 base_path = os.path.dirname(os.path.abspath(__file__))
 
