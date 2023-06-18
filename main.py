@@ -72,7 +72,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     # Use resource_path to get the correct path for the image
-    image_path = resource_path3("test.png")  # Provide your image path here
+    image_path = resource_path3("images/test.png")  # Provide your image path here
 
     print(image_path)
 

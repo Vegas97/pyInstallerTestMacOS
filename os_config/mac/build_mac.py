@@ -56,7 +56,7 @@ subprocess.run([
     f"--distpath={generatedDir}/dist",
     f"--workpath={generatedDir}/build",
     f"--specpath={generatedDir}",
-    f"--add-data={root_directory}/test.png:.",
+    f"--add-data={root_directory}/images/test.png:images",
     f"--name={appName}",
     f"{root_directory}/main.py"
 ])
