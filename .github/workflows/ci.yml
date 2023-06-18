@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+#        os: [macos-latest, windows-latest, ubuntu-latest] # TODO: this will be the final matrix
+        os: [macos-13]  # TODO: this is for testing, and we avoid spending credits
+        python-version: ["3.11"]
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      shell: bash
+
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Root directory
+      run: ls -R
+
+    - name: Install PyInstaller
+      run: pip install pyinstaller
+
+    # LINUX ------------------------------------------------------
+    - name: Print OS Version
+      if: runner.os == 'Linux'
+      run: lsb_release -a
+
+    - name: Build for Linux
+      if: runner.os == 'Linux'
+      run: python ./os_config/linux/build_linux.py
+
+    # MACOS ------------------------------------------------------
+    - name: Print OS Version
+      if: runner.os == 'macOS'
+      run: sw_vers
+
+    - name: Build for macOS
+      if: runner.os == 'macOS'
+      run: python ./os_config/mac/build_mac.py
+
+    - name: Upload _generated for macOS
+      if: runner.os == 'macOS'
+      uses: actions/upload-artifact@v3
+      with:
+        name: mac-generated-executable
+        path: ./os_config/mac/_generated/
+
+    # WINDOWS ------------------------------------------------------
+    - name: Print OS Version
+      if: runner.os == 'Windows'
+      run: |
+        echo "OS Version:"
+        [System.Environment]::OSVersion.Version
+      shell: pwsh
+
+    - name: Build for Windows
+      if: runner.os == 'Windows'
+      run: python ./os_config/windows/build_win.py
+
+#    - name: Upload _generated for Windows
+#      if: runner.os == 'Windows'
+#      uses: actions/upload-artifact@v3
+#      with:
+#        name: windows-generated-executable
+#        path: ./os_config/windows/_generated/
+
